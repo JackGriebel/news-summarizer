@@ -1,0 +1,157 @@
+<head>
+  <title>News Summarizer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+
+
+<body>
+<h1 class="text-warning display-4">News</h1>
+
+
+<div id="linksDiv" >Loading...</div>
+
+</body>
+
+
+
+<style>
+.arrow-icon {
+	display: inline-block;
+	float: right;
+	margin-right: 30px;
+}
+
+.headline:hover + .summary {
+	height: 100%;
+	transition-delay: 100ms;
+}
+
+.summary:hover {
+	height: 100%;
+	transition-delay: 100ms;
+}
+
+
+.news-segment:hover {
+	background-color: #053361;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+}
+
+.summary {
+	height: 0px;
+}
+
+body {
+	background-color: #05386b;
+	color: white;
+}
+
+hr {
+	border: 0;
+	height: 1px;
+	background-color: #fff4;
+}
+
+h1 {
+	text-align: center;
+}
+
+#linksDiv {
+	padding-left: 2%;
+	padding-right: 2%;
+}
+
+.headline {
+}
+
+.summary {
+	padding-top: 20px;
+	padding-left: 10px;
+}
+
+.summarizeButton {
+	padding-top: 1%;
+}
+
+.btn {
+	padding: 0px;
+	padding-left: 10px;
+}
+
+.articleText {
+	color: white;
+}
+
+a {
+    color: white;
+	    font-weight: bold;
+}
+
+a:hover {
+    color: #DDDDFF;
+}
+
+
+</style>
+
+
+
+
+<script>
+  
+//makes the news aricles and html
+function fillHTML(subreddit, numPosts) {
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://www.reddit.com/user/autotldr/comments.json?sort=hot", false);
+	xhr.send();
+	var info = JSON.parse(xhr.responseText);
+	var html = "<hr>";
+	
+	var displayed = [];
+	for(var i = 0; i < numPosts; i++) {
+		html+="<div class=\"news-segment\">"
+		var trimmedBody = trimBody(info.data.children[i].data.body);
+		if(!displayed.includes(trimmedBody.substring(0,10))) {
+			html+= "<div class=\"headline\" id=\"" + info.data.children[i].data.link_title.substring(0,10) + "\" + onclick=\"display(this.id)\">";
+			html += "<a target=\"_blank\" href=\"" + info.data.children[i].data.link_permalink + "\" class=\"articleText\">" +  info.data.children[i].data.link_title;
+			html+="<div class=\"arrow-icon\" id=\"" + info.data.children[i].data.link_title.substring(0,10) + "icon\">"
+			html += "</a><i class=\"fa fa-angle-down fa-2x\"></i></div>";
+			
+		html += "</div>";
+		html += "<div id=\"" + info.data.children[i].data.link_title.substring(0,10) + "text\" class=\"summary\" style=\"text-transform:pinned; overflow:hidden;\">" + trimmedBody + "</div></div><hr>"
+		}
+		displayed.push(trimmedBody.substring(0,10));
+	}
+ 	document.getElementById("linksDiv").innerHTML = html;
+
+}
+
+function trimBody(str) {
+	str = str.split("&amp;#039;").join("'");
+	str = str.split("&amp;quot;").join("\"");
+	str = str.split("&gt;").join("");
+	return str.substring(str.indexOf("*****") + 5, str.indexOf("*****", 300));
+}
+
+
+
+
+function display(url) {
+	if(document.getElementById(url + "text").style.height  == "100%") {
+		document.getElementById(url + "text").style.height  = "0px"
+		document.getElementById(url + "icon").innerHTML  = "<i class=\"fa fa-angle-down fa-2x\"></i>"
+	} else {
+			document.getElementById(url + "text").style.height  = "100%"
+			document.getElementById(url + "icon").innerHTML  = "<i class=\"fa fa-lock fa-2x\"></i>"
+	}	
+}
+
+ fillHTML("autotldr", 25);
+
+
+</script>
